@@ -54,25 +54,7 @@ def get_batches(image,label,resize_w,resize_h,batch_size,capacity):
     print(label_batch)
     return images_batch,labels_batch
 
-def init_weights(shape):
-    return tf.Variable(tf.random_normal(shape,stddev = 0.01))
- #init weights
-weights = {
-      "w1":init_weights([3,3,3,16]),
-      "w2":init_weights([3,3,16,128]),
-      "w3":init_weights([3,3,128,256]),
-      "w4":init_weights([4096,4096]),
-      "wo":init_weights([4096,6])
-          }
- 
- #init biases
-biases = {
-     "b1":init_weights([16]),
-     "b2":init_weights([128]),
-     "b3":init_weights([256]),
-     "b4":init_weights([4096]),
-     "bo":init_weights([6])
-         }
+
 
 def conv2d(x,w,b):
     x = tf.nn.conv2d(x,w,strides = [1,1,1,1],padding = "SAME")
@@ -273,31 +255,14 @@ def run_training():
     finally:
         coord.request_stop()
     coord.join(threads)
-    '''
-    if flag==1:
-        image_batches1,label_batches1 = get_batches(X_test,Y_test,32,32,len(X_test),300)
-        p1 = mmodel1(image_batches1,len(X_test))
-        #cost1 = loss(p1,label_batches1)
-        #train_op1 = training(cost1,0.001)
-        acc1 = get_accuracy(p1,label_batches1)
-        train_acc1 = sess.run([acc1])
-        print("测试集的识别率")
-        print("accuracy:{}".format(train_acc1))
-    '''
+  
     sess.close()
     
 if __name__ == '__main__':
     
     os.environ['CUDA_VISIBLE_DEVICES'] = '0,1,2'
     #run_training()
-    '''
-    print(len(out_list)) 
-    f = codecs.open("/home/lab326/songpeng/result.txt",'w','utf-8')
-    for i in range(len(out_list)):
-        f.write(str(i)+'\r\n')
-        f.write(str(out_list[i])+'\r\n')
-    f.close()
-    '''
+
     test("/home/lab326/songpeng/test.jpg")
     
     
