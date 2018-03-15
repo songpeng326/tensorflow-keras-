@@ -54,25 +54,6 @@ def get_batches(image,label,resize_w,resize_h,batch_size,capacity):
     print(label_batch)
     return images_batch,labels_batch
 
-def init_weights(shape):
-    return tf.Variable(tf.random_normal(shape,stddev = 0.01))
- #init weights
-weights = {
-      "w1":init_weights([3,3,3,16]),
-      "w2":init_weights([3,3,16,128]),
-      "w3":init_weights([3,3,128,256]),
-      "w4":init_weights([4096,4096]),
-      "wo":init_weights([4096,6])
-          }
- 
- #init biases
-biases = {
-     "b1":init_weights([16]),
-     "b2":init_weights([128]),
-     "b3":init_weights([256]),
-     "b4":init_weights([4096]),
-     "bo":init_weights([6])
-         }
 
 def conv2d(x,w,b):
     x = tf.nn.conv2d(x,w,strides = [1,1,1,1],padding = "SAME")
@@ -85,21 +66,7 @@ def pooling(x):
 def norm(x,lsize = 4):
     return tf.nn.lrn(x,depth_radius = lsize,bias = 1,alpha = 0.001/9.0,beta = 0.75)
 
-def mmodel(images):
-    print("begin to build model")
-    l1 = conv2d(images,weights["w1"],biases["b1"])
-    l2 = pooling(l1)
-    l2 = norm(l2)
-    l3 = conv2d(l2,weights["w2"],biases["b2"])
-    l4 = pooling(l3)
-    l4 = norm(l4)
-    l5 = conv2d(l4,weights["w3"],biases["b3"])
-    #same as the batch size
-    l6 = pooling(l5)
-    l6 = tf.reshape(l6,[-1,weights["w4"].get_shape().as_list()[0]])
-    l7 = tf.nn.relu(tf.matmul(l6,weights["w4"])+biases["b4"])
-    soft_max = tf.add(tf.matmul(l7,weights["wo"]),biases["bo"])
-    return soft_max
+
 def loss(logits,label_batches):
     cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(logits=logits,labels=label_batches)
     cost = tf.reduce_mean(cross_entropy)
@@ -273,17 +240,7 @@ def run_training():
     finally:
         coord.request_stop()
     coord.join(threads)
-    '''
-    if flag==1:
-        image_batches1,label_batches1 = get_batches(X_test,Y_test,32,32,len(X_test),300)
-        p1 = mmodel1(image_batches1,len(X_test))
-        #cost1 = loss(p1,label_batches1)
-        #train_op1 = training(cost1,0.001)
-        acc1 = get_accuracy(p1,label_batches1)
-        train_acc1 = sess.run([acc1])
-        print("测试集的识别率")
-        print("accuracy:{}".format(train_acc1))
-    '''
+
     sess.close()
     
 if __name__ == '__main__':
